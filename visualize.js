@@ -1,7 +1,11 @@
 const PLOT_WIDTH = 600;
 const PLOT_HEIGHT = 400;
 
-var plot = d3.select('#plot');
+var plot = d3.select('#plot')
+var svg = plot
+    .append('svg')
+    .attr('width', PLOT_WIDTH)
+    .attr('height', PLOT_HEIGHT)
 
 
 class SwappableArray {
@@ -24,8 +28,8 @@ class SwappableArray {
         if (i < 0 || i > this.length) {
             throw new RangeError("Index is out-of-range.");
         }
-        var idx = this.indices[i];
-        var d = this.data[idx];
+        let idx = this.indices[i];
+        let d = this.data[idx];
         return d;
     }
 
@@ -44,7 +48,7 @@ class SwappableArray {
             throw new RangeError("Index j is out-of-range.");
         }
 
-        var tmp = this.indices[i];
+        let tmp = this.indices[i];
         this.indices[i] = this.indices[j];
         this.indices[j] = tmp;
     }
@@ -52,12 +56,12 @@ class SwappableArray {
 
 
 function bars() {
-    return plot.selectAll('rect');
+    return svg.selectAll('rect');
 }
 
 
 async function bubblesort_begin(arr, options) {
-    var data = [];
+    let data = [];
     for (let i = 0; i < arr.length; i++) {
         data[i] = {
             index: arr.index(i),
@@ -65,9 +69,9 @@ async function bubblesort_begin(arr, options) {
         };
     }
 
-    var col_width = PLOT_WIDTH / arr.length;
-    var bar_padding = 0.1 * col_width;
-    var bar_width = col_width - 2 * bar_padding;
+    let col_width = PLOT_WIDTH / arr.length;
+    let bar_padding = 0.1 * col_width;
+    let bar_width = col_width - 2 * bar_padding;
 
     bars()
         .data(data)
@@ -86,6 +90,7 @@ async function bubblesort_pre_pass(arr, i, options) {
     return;
 }
 
+
 async function bubblesort_pre_step(arr, i, j, options) {
     // Highlight the two active bars
     return bars()
@@ -99,8 +104,8 @@ async function bubblesort_pre_step(arr, i, j, options) {
 
 async function bubblesort_do_step(arr, i, j, options) {
 
-    var col_width = PLOT_WIDTH / arr.length;
-    var bar_padding = 0.1 * col_width;
+    let col_width = PLOT_WIDTH / arr.length;
+    let bar_padding = 0.1 * col_width;
 
     return bars()
         .filter(d => d.index == arr.index(j) || d.index == arr.index(j + 1))
@@ -158,7 +163,7 @@ async function bubblesort(arr, hooks, options) {
 
     await hooks.begin(arr, options);
 
-    var last = arr.length - 1;
+    let last = arr.length - 1;
     for (let i = last; i > 0; i--) {
         await hooks.pre_pass(arr, i, options);
 
@@ -181,14 +186,14 @@ async function bubblesort(arr, hooks, options) {
 
 
 function visualize_bubblesort(n, step_duration) {
-    var data = [];
+    let data = [];
     for (let i = 0; i < n; i++) {
         data[i] = PLOT_HEIGHT * Math.random();
     }
 
-    var arr = new SwappableArray(data);
+    let arr = new SwappableArray(data);
 
-    var hooks = {
+    let hooks = {
         begin: bubblesort_begin,
         pre_pass: bubblesort_pre_pass,
         pre_step: bubblesort_pre_step,
@@ -198,7 +203,7 @@ function visualize_bubblesort(n, step_duration) {
         end: bubblesort_end
     };
 
-    var options = {
+    let options = {
         duration: step_duration
     }
 
@@ -206,4 +211,4 @@ function visualize_bubblesort(n, step_duration) {
 }
 
 
-visualize_bubblesort(20, 100);
+visualize_bubblesort(10, 500);
