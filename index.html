@@ -37,17 +37,13 @@
 
         <div id="plot" style="display: inline-block; margin: auto; border-style: solid;">
         </div>
-        <!--
+        <script src="algorithm.js"></script>
         <script src="bubblesort.js"></script>
-        -->
+        <!--
         <script src="selectionsort.js"></script>
+        -->
 
         <script>
-            let algorithmElement = document.getElementById("algorithm");
-            let inputSizeElement = document.getElementById("input-size");
-            let inputSizeButtons = document.querySelectorAll("input[name='input-size']");
-            let speedElement = document.getElementById("speed");
-            let speedButtons = document.querySelectorAll("input[name='speed']");
 
             function getRadioValue(name) {
                 let query = "input[name='" + name + "']";
@@ -63,7 +59,7 @@
             }
 
             function getAlgorithm() {
-                return algorithmElement.value;
+                return document.getElementById("algorithm").value;
             }
 
             function getInputSize() {
@@ -75,47 +71,69 @@
             }
 
 
-            function runVisualization(algorithm, inputSize, speed) {
+            function runVisualization(algorithm, inputSize, speed, svg) {
                 switch(algorithm) {
                     case "bubblesort":
-                        visualize_bubblesort(inputSize, speed);
+                        let bubblesort = new BubbleSortImpl(svg);
+                        bubblesort.simulate(inputSize, speed);
                         break;
                     case "selectionsort":
-                        visualize_selectionsort(inputSize, speed);
+                        {{/*  visualize_selectionsort(inputSize, speed);  */}}
                         break;
                 }
             }
 
 
-            algorithmElement.addEventListener("change", (event) => {
-                let algorithm = event.target.value;
+            document.addEventListener('DOMContentLoaded', () => {
+
+                plot = d3.select('#plot');
+                svg = plot
+                    .append('svg')
+                    .attr('width', PLOT_WIDTH)
+                    .attr('height', PLOT_HEIGHT);
+
+                let algorithmElement = document.getElementById("algorithm");
+                let inputSizeElement = document.getElementById("input-size");
+                let inputSizeButtons = document.querySelectorAll("input[name='input-size']");
+                let speedElement = document.getElementById("speed");
+                let speedButtons = document.querySelectorAll("input[name='speed']");
+
+                algorithmElement.addEventListener("change", (event) => {
+                    let algorithm = event.target.value;
+                    let inputSize = getInputSize();
+                    let speed = getSpeed();
+
+                    runVisualization(algorithm, inputSize, speed, svg);
+                });
+
+                inputSizeButtons.forEach(button => {
+                    button.addEventListener("change", (event) => {
+                        let algorithm = getAlgorithm();
+                        let inputSize = parseInt(event.target.value);
+                        let speed = getSpeed();
+
+                        runVisualization(algorithm, inputSize, speed, svg);
+                    })
+                });
+
+                speedButtons.forEach(button => {
+                    button.addEventListener("change", (event) => {
+                        let algorithm = getAlgorithm();
+                        let inputSize = getInputSize();
+                        let speed = parseInt(event.target.value);
+                    
+                        runVisualization(algorithm, inputSize, speed, svg);
+                    })
+                });
+
+
+                let algorithm = getAlgorithm();
                 let inputSize = getInputSize();
                 let speed = getSpeed();
 
-                runVisualization(algorithm, inputSize, speed);
-            });
-
-
-            inputSizeButtons.forEach(button => {
-                button.addEventListener("change", (event) => {
-                    let algorithm = getAlgorithm();
-                    let inputSize = parseInt(event.target.value);
-                    let speed = getSpeed();
-
-                    runVisualization(algorithm, inputSize, speed);
-                })
-            });
-
-
-            speedButtons.forEach(button => {
-                button.addEventListener("change", (event) => {
-                    let algorithm = getAlgorithm();
-                    let inputSize = getInputSize();
-                    let speed = parseInt(event.target.value);
-                
-                    runVisualization(algorithm, inputSize, speed);
-                })
-            });
+                let bubblesort = new BubbleSortImpl(svg);
+                runVisualization(algorithm, inputSize, speed, svg);
+            })
 
         </script>
     </body>
