@@ -4,8 +4,119 @@
         <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     </head>
     <body>
+        <div id="menus" style="margin: 50px auto;">
+            <select id="algorithm" name="algorithm">
+                <option value="bubblesort" selected>Bubble sort</option>
+                <option value="selectionsort">Selection sort</option>
+            </select>
+
+            <div id="input-size" style="margin: 20px auto;">
+                <input type="radio" id="input-size-10" name="input-size" value="10" checked>
+                <label for="input-size-10">10</label>
+                <input type="radio" id="input-size-20" name="input-size" value="20">
+                <label for="input-size-20">20</label>
+                <input type="radio" id="input-size-50" name="input-size" value="50">
+                <label for="input-size-50">50</label>
+                <input type="radio" id="input-size-100" name="input-size" value="100">
+                <label for="input-size-100">100</label>
+            </div>
+
+            <div id="speed" style="margin: 20px auto;">
+                <input type="radio" id="speed-very-slow" name="speed" value="1000">
+                <label for="speed-very-slow">Very slow</label>
+                <input type="radio" id="speed-slow" name="speed" value="500" checked>
+                <label for="speed-slow">Slow</label>
+                <input type="radio" id="speed-medium" name="speed" value="200">
+                <label for="speed-slow">Medium</label>
+                <input type="radio" id="speed-fast" name="speed" value="50">
+                <label for="speed-fast">Fast</label>
+                <input type="radio" id="very-fast" name="speed" value="20">
+                <label for="speed-fast">Very fast</label>
+            </div>
+        </div>
+
         <div id="plot" style="display: inline-block; margin: auto; border-style: solid;">
         </div>
-        <script src="visualize.js"></script>
+        <!--
+        <script src="bubblesort.js"></script>
+        -->
+        <script src="selectionsort.js"></script>
+
+        <script>
+            let algorithmElement = document.getElementById("algorithm");
+            let inputSizeElement = document.getElementById("input-size");
+            let inputSizeButtons = document.querySelectorAll("input[name='input-size']");
+            let speedElement = document.getElementById("speed");
+            let speedButtons = document.querySelectorAll("input[name='speed']");
+
+            function getRadioValue(name) {
+                let query = "input[name='" + name + "']";
+                let elements = document.querySelectorAll(query);
+                
+                for (let i = 0; i < elements.length; i++) {
+                    if (elements[i].checked) {
+                        return elements[i].value;
+                    }
+                }
+
+                return null;
+            }
+
+            function getAlgorithm() {
+                return algorithmElement.value;
+            }
+
+            function getInputSize() {
+                return parseInt(getRadioValue("input-size"));
+            }
+
+            function getSpeed() {
+                return parseInt(getRadioValue("speed"));
+            }
+
+
+            function runVisualization(algorithm, inputSize, speed) {
+                switch(algorithm) {
+                    case "bubblesort":
+                        visualize_bubblesort(inputSize, speed);
+                        break;
+                    case "selectionsort":
+                        visualize_selectionsort(inputSize, speed);
+                        break;
+                }
+            }
+
+
+            algorithmElement.addEventListener("change", (event) => {
+                let algorithm = event.target.value;
+                let inputSize = getInputSize();
+                let speed = getSpeed();
+
+                runVisualization(algorithm, inputSize, speed);
+            });
+
+
+            inputSizeButtons.forEach(button => {
+                button.addEventListener("change", (event) => {
+                    let algorithm = getAlgorithm();
+                    let inputSize = parseInt(event.target.value);
+                    let speed = getSpeed();
+
+                    runVisualization(algorithm, inputSize, speed);
+                })
+            });
+
+
+            speedButtons.forEach(button => {
+                button.addEventListener("change", (event) => {
+                    let algorithm = getAlgorithm();
+                    let inputSize = getInputSize();
+                    let speed = parseInt(event.target.value);
+                
+                    runVisualization(algorithm, inputSize, speed);
+                })
+            });
+
+        </script>
     </body>
 </html>

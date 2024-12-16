@@ -1,11 +1,11 @@
 const PLOT_WIDTH = 600;
 const PLOT_HEIGHT = 400;
 
-var plot = d3.select('#plot')
+var plot = d3.select('#plot');
 var svg = plot
     .append('svg')
     .attr('width', PLOT_WIDTH)
-    .attr('height', PLOT_HEIGHT)
+    .attr('height', PLOT_HEIGHT);
 
 
 class SwappableArray {
