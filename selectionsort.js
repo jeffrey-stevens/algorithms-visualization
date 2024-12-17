@@ -1,5 +1,9 @@
 
-class SelectionSort extends SearchAlgorithm {
+class SelectionSort extends SortAlgorithm {
+
+    constructor() {
+        super();
+    }
 
     async begin(arr, options) {}
     async pre_pass(arr, i, options) {}

@@ -56,6 +56,11 @@ function runVisualization(algorithm, inputSize, speed) {
             let selectionsort = new SelectionSortViz(svg);
             selectionsort.simulate(inputSize, speed);
             break;
+        
+        case "insertionsort":
+            let insertionsort = new InsertionSortViz(svg);
+            insertionsort.simulate(inputSize, speed);
+            break;
     }
 }
 

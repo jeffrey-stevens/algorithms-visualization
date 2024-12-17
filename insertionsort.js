@@ -1,4 +1,5 @@
-class BubbleSort extends SortAlgorithm {
+class InsertionSort extends SortAlgorithm {
+
     constructor() {
         super();
     }
@@ -8,40 +9,44 @@ class BubbleSort extends SortAlgorithm {
     async pre_step(arr, i, j, options) {}
     async swap(arr, i, j, options) {}
     async post_step(arr, i, j, options) {}
-    async post_pass(arr, i, options) {}
+    async post_pass(arr, i, j, options) {}
     async end(arr, options) {}
 
 
-    // Takes a swappable array as input
     async sort(arr, options) {
 
         await this.begin(arr, options);
 
-        let last = arr.length - 1;
-        for (let i = last; i > 0; i--) {
+        for (let i = 1; i < arr.length; i++) {
+
             await this.pre_pass(arr, i, options);
 
-            for (let j = 0; j < i; j++) {
+            let j = i;
+            let done = false;
+            while (j > 0 && !done) {
                 await this.pre_step(arr, i, j, options);
 
-                if (arr.value(j) > arr.value(j + 1)) {
+                if (arr.value(j) < arr.value(j - 1)) {
                     await this.swap(arr, i, j, options);
-                    arr.swap(j, j + 1);
+                    arr.swap(j, j - 1);
+                } else {
+                    done = true;
                 }
 
                 await this.post_step(arr, i, j, options);
+
+                j--;
             }
 
-            await this.post_pass(arr, i, options);
+            await this.post_pass(arr, i, j, options);
         }
-
+    
         await this.end(arr, options);
     }
-
 }
 
 
-class BubbleSortViz extends BubbleSort {
+class InsertionSortViz extends InsertionSort {
 
     svg;
 
@@ -83,14 +88,19 @@ class BubbleSortViz extends BubbleSort {
 
 
     async pre_pass(arr, i, options) {
-        return;
+        return this.bars()
+            .filter(d => d.index == arr.index(i))
+            .transition()
+            .duration(options.duration)
+            .attr('fill', 'darkred')
+            .end();
     }
 
 
     async pre_step(arr, i, j, options) {
         // Highlight the two active bars
         return this.bars()
-            .filter(d => d.index == arr.index(j) || d.index == arr.index(j + 1))
+            .filter(d => d.index == arr.index(j - 1))
             .transition()
             .duration(options.duration)
             .attr('fill', 'red')
@@ -103,39 +113,28 @@ class BubbleSortViz extends BubbleSort {
         let col_width = PLOT_WIDTH / arr.length;
         let bar_padding = 0.1 * col_width;
 
-        return this.bars()
-            .filter(d => d.index == arr.index(j) || d.index == arr.index(j + 1))
-            .transition()
-            .duration(options.duration)
-            .attr('x', d => {
-                // Shift index[j] to position j + 1
-                // and index[j + 1] to position j
-                if (d.index == arr.index(j)) {
-                    return bar_padding + col_width * (j + 1);
-                } else if (d.index == arr.index(j + 1)) {
-                    return bar_padding + col_width * j;
-                }
-                // These should be the only two conditions
-            })
+        let trans = d3.transition().duration(options.duration);
+
+        let move_i_promise = this.bars()
+            .filter(d => d.index == arr.index(j))
+            .transition(trans)
+            .attr('x', bar_padding + col_width * (j - 1))
             .end();
+        
+        let move_j_promise = this.bars()
+            .filter(d => d.index == arr.index(j - 1))
+            .transition(trans)
+            .attr('x', bar_padding + col_width * j)
+            .end();
+
+        return Promise.all([move_i_promise, move_j_promise]);
     }
 
 
     async post_step(arr, i, j, options) {
-        // Change them back to blue
+        // Whether there was a swap or not, the element at j is now in-place
         return this.bars()
-            .filter(d => d.index == arr.index(j) || d.index == arr.index(j + 1))
-            .transition()
-            .duration(options.duration)
-            .attr('fill', 'blue')
-            .end();
-    }
-
-
-    async post_pass(arr, i, options) {
-        // The i-th element is now in order.  Change it to black:
-        return this.bars()
-            .filter(d => d.index == arr.index(i))
+            .filter(d => d.index == arr.index(j))
             .transition()
             .duration(options.duration)
             .attr('fill', 'black')
@@ -143,14 +142,18 @@ class BubbleSortViz extends BubbleSort {
     }
 
 
-    async end(arr, options) {
-        // At the end of the algorithm the last element is in order
+    async post_pass(arr, i, j, options) {
+        // j now corresponds to the element before the one that was just put in place.
+        // This will be red.  Change it back to black.
         return this.bars()
-            .filter(d => d.index == arr.index(0))
+            .filter(d => d.index == arr.index(j))
             .transition()
             .duration(options.duration)
             .attr('fill', 'black')
             .end();
     }
+
+    
+    async end(arr, options) {}
 
 }

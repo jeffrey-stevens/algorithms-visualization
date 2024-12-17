@@ -46,7 +46,7 @@ class SwappableArray {
 }
 
 
-class SearchAlgorithm {
+class SortAlgorithm {
 
     constructor() {
     }

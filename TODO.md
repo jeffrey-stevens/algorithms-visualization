@@ -2,6 +2,10 @@
 
 * The color transitions should be faster...
 
+## Issues
+
+* Handle arrays of length 0 or 1
+
 
 ## Features
 
@@ -9,7 +13,6 @@
 
 ## Algorithms
 
-* Insertion sort
 * Quicksort
 * Mergesort
 * Radix sort
