@@ -48,11 +48,13 @@ function runVisualization(algorithm, inputSize, speed) {
 
     switch(algorithm) {
         case "bubblesort":
-            let bubblesort = new BubbleSortImpl(svg);
+            let bubblesort = new BubbleSortViz(svg);
             bubblesort.simulate(inputSize, speed);
             break;
+
         case "selectionsort":
-            {{/*  visualize_selectionsort(inputSize, speed);  */}}
+            let selectionsort = new SelectionSortViz(svg);
+            selectionsort.simulate(inputSize, speed);
             break;
     }
 }

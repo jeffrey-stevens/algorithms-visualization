@@ -1,4 +1,4 @@
-class BubbleSort extends Algorithm {
+class BubbleSort extends SearchAlgorithm {
     constructor() {
         super();
     }
@@ -38,26 +38,10 @@ class BubbleSort extends Algorithm {
         await this.end(arr, options);
     }
 
-
-    simulate(n, step_duration) {
-        let data = [];
-        for (let i = 0; i < n; i++) {
-            data[i] = PLOT_HEIGHT * Math.random();
-        }
-
-        let arr = new SwappableArray(data);
-
-        let options = {
-            duration: step_duration
-        }
-
-        this.sort(arr, options)
-            .then(console.log("Complete!")); 
-    }
 }
 
 
-class BubbleSortImpl extends BubbleSort {
+class BubbleSortViz extends BubbleSort {
 
     svg;
 

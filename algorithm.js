@@ -46,9 +46,27 @@ class SwappableArray {
 }
 
 
-class Algorithm {
+class SearchAlgorithm {
 
     constructor() {
+    }
+
+    async sort(arr, options) {}
+
+    simulate(n, step_duration) {
+        let data = [];
+        for (let i = 0; i < n; i++) {
+            data[i] = PLOT_HEIGHT * Math.random();
+        }
+
+        let arr = new SwappableArray(data);
+
+        let options = {
+            duration: step_duration
+        }
+
+        this.sort(arr, options)
+            .then(console.log("Complete!")); 
     }
 
 }
