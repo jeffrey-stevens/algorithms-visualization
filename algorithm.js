@@ -1,6 +1,3 @@
-const PLOT_WIDTH = 600;
-const PLOT_HEIGHT = 400;
-
 
 class SwappableArray {
     data;
