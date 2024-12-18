@@ -5,13 +5,13 @@ class Quicksort extends SortAlgorithm {
     }
 
     async begin(arr, options) {}
-    async sort_left(arr, i, k, j, options) {}
-    async sort_right(arr, i, k, j, options) {}
+    async pre_sort_left(arr, i, k, j, options) {}
+    async pre_sort_right(arr, i, k, j, options) {}
     async post_pivot(arr, pivotIdx, options) {}
     async seek_left(arr, k, options) {}
     async post_seek_left(arr, k, options) {}
     async seek_right(arr, l, options) {}
-    async post_seek_right(arr, l, pivotIdx, options) {}
+    async post_seek_right(arr, k, l, pivotIdx, options) {}
     async found_left(arr, k, options) {}
     async found_right(arr, l, options) {}
     async pre_swap(arr, k, l, options) {}
@@ -23,8 +23,8 @@ class Quicksort extends SortAlgorithm {
 
     getPivotIndex(arr, i, j) {
 
-        let lowerIdx = Math.floor((arr.length - 0.5) / 2);
-        let higherIdx = Math.ceil((arr.length - 0.5) / 2);
+        let lowerIdx = Math.floor((i + j + 0.5) / 2);
+        let higherIdx = Math.ceil((i + j + 0.5) / 2);
 
         // Set the pivot to be the greater of the two
         // This ensures that there's always at least one element in each split
@@ -71,7 +71,7 @@ class Quicksort extends SortAlgorithm {
                 in_order = arr.value(l) >= pivotVal;
 
                 if (in_order) {
-                    await this.post_seek_right(arr, l, pivotIdx, options);
+                    await this.post_seek_right(arr, k, l, pivotIdx, options);
                     l--;
                 }
             }
@@ -105,11 +105,11 @@ class Quicksort extends SortAlgorithm {
 
         let k = await this.split(arr, i, j, options);
 
-        await this.sort_left(arr, i, k, j, options);
-        this.quicksort(arr, i, k - 1, options);
+        await this.pre_sort_left(arr, i, k, j, options);
+        await this.quicksort(arr, i, k - 1, options);
 
-        await this.sort_right(arr, i, k, j, options);
-        this.quicksort(arr, k, j, options);
+        await this.pre_sort_right(arr, i, k, j, options);
+        await this.quicksort(arr, k, j, options);
     }
 
 
@@ -166,7 +166,7 @@ class QuicksortViz extends Quicksort {
 
     async in_place(arr, i, options) {
         return this.bars()
-            .filter(d => d.index == arr.index(pivotIdx))
+            .filter(d => d.index == arr.index(i))
             .transition()
             .duration(options.duration)
             .attr('fill', 'black')
@@ -229,9 +229,19 @@ class QuicksortViz extends Quicksort {
     }
 
 
-    async post_seek_right(arr, l, pivotIdx, options) {
+    async post_seek_right(arr, k, l, pivotIdx, options) {
 
-        let color = (l === pivotIdx) ? 'green' : 'lightblue';
+        let color;
+        if (l === pivotIdx) {
+            if (k === pivotIdx) {
+                color = 'darkblue';
+            } else {
+                color = 'green';
+            }
+        } else {
+            color = 'lightblue';
+        }
+
         return this.bars()
             .filter(d => d.index == arr.index(l))
             .transition()
@@ -330,6 +340,55 @@ class QuicksortViz extends Quicksort {
             .end();
 
         return Promise.all([left_promise, right_promise, pivot_promise]);
+    }
+
+    
+    async pre_sort_left(arr, i, k, j, options) {
+
+        let leftSize = (k - 1) - i + 1;
+        let leftBars = new Array(leftSize);
+        for (let n = i; n < k; n++) {
+            leftBars[n - i] = arr.index(n);
+        }
+
+        let rightSize = j - k + 1;
+        let rightBars = new Array(rightSize);
+        for (let n = k; n <= j; n++) {
+            rightBars[n - k] = arr.index(n);
+        }
+
+        let trans = d3.transition().duration(options.duration);
+
+        let leftPromise = this.bars()
+            .filter(d => leftBars.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'lightgray')
+            .end();
+
+        let rightPromise = this.bars()
+            .filter(d => rightBars.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'darkgray')
+            .end();
+        
+        return Promise.all([leftPromise, rightPromise]);
+    }
+
+
+    async pre_sort_right(arr, i, k, j, options) {
+
+        let size = j - k + 1;
+        let indices = new Array(size);
+        for (let n = k; n <= j; n++) {
+            indices[n - k] = arr.index(n);
+        }
+
+        return this.bars()
+            .filter(d => indices.includes(d.index))
+            .transition()
+            .duration(options.duration)
+            .attr('fill', 'lightgray')
+            .end();
     }
 
 }
