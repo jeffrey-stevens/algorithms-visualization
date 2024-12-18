@@ -316,14 +316,20 @@ class QuicksortViz extends Quicksort {
             .attr('fill', 'lightcoral')
             .end();
 
-        let rightColor = (k === pivotIdx) ? 'green' : 'lightblue';
         let right_promise = this.bars()
             .filter(d => d.index == arr.index(k))
             .transition(trans)
-            .attr('fill', rightColor)
+            .attr('fill', 'lightblue')
+            .end();
+        
+        // Turn the pivot to lightblue
+        let pivot_promise = this.bars()
+            .filter(d => d.index == arr.index(pivotIdx))
+            .transition(trans)
+            .attr('fill', 'lightblue')
             .end();
 
-        return Promise.all([left_promise, right_promise]);
+        return Promise.all([left_promise, right_promise, pivot_promise]);
     }
 
 }
