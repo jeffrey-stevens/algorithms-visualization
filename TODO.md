@@ -1,6 +1,7 @@
 # Todo
 
 * The color transitions should be faster...
+* Change snake case variables and functions to camel case
 
 ## Issues
 
