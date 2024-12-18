@@ -61,6 +61,11 @@ function runVisualization(algorithm, inputSize, speed) {
             let insertionsort = new InsertionSortViz(svg);
             insertionsort.simulate(inputSize, speed);
             break;
+
+        case "quicksort":
+            let quicksort = new QuicksortViz(svg);
+            quicksort.simulate(inputSize, speed);
+            break;
     }
 }
 
