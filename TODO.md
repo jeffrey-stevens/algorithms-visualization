@@ -1,5 +1,7 @@
 # Todo
 
+* Don't hard-code random array range
+  * (Range from 0 - 1; scale only in the visualization)
 * The color transitions should be faster...
 * Change snake case variables and functions to camel case
 
