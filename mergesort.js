@@ -10,6 +10,11 @@ class Mergesort extends SortAlgorithm {
     async split(arr, i, k, j, options) {}
     async sort_left(arr, i, k, j, options) {}
     async sort_right(arr, i, k, j, options) {}
+    async pre_merge(arr, i, k, j, options) {}
+    async next_idx_found(arr, i, k, j, nextIdx, options) {}
+    async copy_idx(arr, i, n, nextIdx, options) {}
+    async post_copy_idx(arr, i, n, nextIdx, options) {}
+    async copy_array(arr, i, j, options) {}
 
 
     async merge(arr, i, k, j, options) {
@@ -20,19 +25,24 @@ class Mergesort extends SortAlgorithm {
         let rightIdx = k;
         let leftIsLeast;
 
+        await this.pre_merge(arr, i, k, j, options);
+
         for (let n = 0; n < size; n++) {
             
             leftIsLeast = (rightIdx > j) || 
                 ((leftIdx < k) && (arr.value(leftIdx) <= arr.value(rightIdx)));
+            let nextIdx = (leftIsLeast) ? leftIdx : rightIdx;
 
-            if (leftIsLeast) {
-                tmpArr[n] = arr.index(leftIdx);
-                leftIdx++;
-            } else {
-                tmpArr[n] = arr.index(rightIdx);
-                rightIdx++;
-            }
+            await this.next_idx_found(arr, i, k, j, nextIdx, options);
+
+            await this.copy_idx(arr, i, n, nextIdx, options);
+            tmpArr[n] = arr.index(nextIdx);
+            await this.post_copy_idx(arr, i, n, nextIdx, options);
+
+            (leftIsLeast) ? leftIdx++ : rightIdx++;
         }
+
+        await this.copy_array(arr, i, j, options);
 
         // Copy the temporary array to arr
         for (let n = 0; n < size; n++) {
@@ -123,7 +133,7 @@ class MergesortViz extends Mergesort {
             .filter(d => d.index == arr.index(i))
             .transition()
             .duration(options.duration)
-            .attr('fill', 'black')
+            .attr('fill', 'darkgray')
             .end();
     }
 
@@ -159,4 +169,109 @@ class MergesortViz extends Mergesort {
             .attr('fill', 'lightcoral')
             .end();
     }
+
+
+    async pre_merge(arr, i, k, j, options) {
+
+        let leftSize = (k - 1) - i + 1;
+        let leftIndices = new Array(leftSize);
+        for (let n = 0; n < leftSize; n++) {
+           leftIndices[n] = arr.index(n + i);
+        }
+
+        let rightSize = j - k + 1;
+        let rightIndices = new Array(rightSize);
+        for (let n = 0; n < rightSize; n++) {
+           rightIndices[n] = arr.index(n + k);
+        }
+
+        let trans = d3.transition().duration(options.duration)
+
+        let leftPromise = this.bars()
+            .filter(d => leftIndices.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'red')
+            .end();
+
+        let rightPromise = this.bars()
+            .filter(d => rightIndices.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'blue')
+            .end();
+
+        return Promise.all([leftPromise, rightPromise]);
+    }
+
+
+    async next_idx_found(arr, i, k, j, nextIdx, options) {
+
+        let color;
+        if (i <= nextIdx && nextIdx < k) {
+            color = 'darkred';
+        } else if (k <= nextIdx && nextIdx <= j) {
+            color = 'darkblue';
+        }
+
+        return this.bars()
+            .filter(d => d.index === arr.index(nextIdx))
+            .transition()
+            .duration(options.duration)
+            .attr('fill', color)
+            .end();
+    }
+
+
+    async copy_idx(arr, i, n, nextIdx, options) {
+
+        let col_width = PLOT_WIDTH / arr.length;
+        let bar_padding = 0.1 * col_width;
+
+        return this.bars()
+            .filter(d => d.index === arr.index(nextIdx))
+            .transition()
+            .duration(options.duration)
+            .attr('x', bar_padding + col_width * (i + n))
+            .attr('y', d => PLOT_HEIGHT - d.value)
+            .end();
+    }
+
+
+    async post_copy_idx(arr, i, n, nextIdx, options) {
+
+        // return this.bars()
+        //     .filter(d => d.index == arr.index(nextIdx))
+        //     .transition()
+        //     .duration(options.duration)
+        //     .attr('fill', 'darkgray')
+        //     .end();
+    }
+
+
+    async copy_array(arr, i, j, options) {
+        let size = j - i + 1;
+        let indices = new Array(size);
+        for (let n = 0; n < size; n++) {
+           indices[n] = arr.index(n + i);
+        }
+
+        let row_height = (PLOT_HEIGHT - this.ROW_PADDING) / 2;
+
+        return this.bars()
+            .filter(d => indices.includes(d.index))
+            .transition()
+            .duration(options.duration)
+            .attr('y', d => row_height - d.value)
+            .attr('fill', 'lightgray')
+            .end();
+    }
+
+
+    async end(arr, options) {
+        return this.bars()
+            .transition()
+            .duration(options.duration)
+            .attr('fill', 'black')
+            .end();
+    }
+
 }
