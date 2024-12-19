@@ -31,6 +31,19 @@ class SwappableArray {
         return this.indices[i];
     }
 
+
+    setIndex(i, newIdx) {
+        // Set the index of position i to newIdx
+        if (i < 0 || i > this.length) {
+            throw new RangeError("Index is out-of-range.");
+        }
+        if (newIdx < 0 || newIdx > this.length) {
+            throw new RangeError("New index is out-of-range.");
+        }
+        this.indices[i] = newIdx;
+    }
+
+
     swap(i, j) {
         if (i < 0 || i > this.length) {
             throw new RangeError("Index i is out-of-range.");
@@ -53,7 +66,7 @@ class SortAlgorithm {
 
     async sort(arr, options) {}
 
-    simulate(n, step_duration) {
+    simulate(n, maxVal, step_duration) {
         let data = [];
         for (let i = 0; i < n; i++) {
             data[i] = PLOT_HEIGHT * Math.random();

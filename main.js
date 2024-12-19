@@ -49,22 +49,27 @@ function runVisualization(algorithm, inputSize, speed) {
     switch(algorithm) {
         case "bubblesort":
             let bubblesort = new BubbleSortViz(svg);
-            bubblesort.simulate(inputSize, speed);
+            bubblesort.simulate(inputSize, PLOT_HEIGHT, speed);
             break;
 
         case "selectionsort":
             let selectionsort = new SelectionSortViz(svg);
-            selectionsort.simulate(inputSize, speed);
+            selectionsort.simulate(inputSize, PLOT_HEIGHT, speed);
             break;
         
         case "insertionsort":
             let insertionsort = new InsertionSortViz(svg);
-            insertionsort.simulate(inputSize, speed);
+            insertionsort.simulate(inputSize, PLOT_HEIGHT, speed);
             break;
 
         case "quicksort":
             let quicksort = new QuicksortViz(svg);
-            quicksort.simulate(inputSize, speed);
+            quicksort.simulate(inputSize, PLOT_HEIGHT, speed);
+            break;
+
+        case "mergesort":
+            let mergesort = new MergesortViz(svg);
+            mergesort.simulate(inputSize, PLOT_HEIGHT, speed);
             break;
     }
 }
