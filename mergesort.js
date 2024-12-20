@@ -7,14 +7,17 @@ class Mergesort extends SortAlgorithm {
     async begin(arr, options) {}
     async end(arr, options) {}
     async in_place(arr, i, options) {}
+    async post_in_place(arr, i, options) {}
     async split(arr, i, k, j, options) {}
     async sort_left(arr, i, k, j, options) {}
     async sort_right(arr, i, k, j, options) {}
+    async post_merge(arr, i, k, j, options) {}
     async pre_merge(arr, i, k, j, options) {}
     async next_idx_found(arr, i, k, j, nextIdx, options) {}
     async copy_idx(arr, i, n, nextIdx, options) {}
     async post_copy_idx(arr, i, n, nextIdx, options) {}
     async copy_array(arr, i, j, options) {}
+    async split(arr, i, k, j, options) {}
 
 
     async merge(arr, i, k, j, options) {
@@ -54,10 +57,12 @@ class Mergesort extends SortAlgorithm {
     async mergesort(arr, i, j, options) {
         if (i === j) {
             await this.in_place(arr, i, options);
+            await this.post_in_place(arr, i, options);
             return;
         }
 
         let k = Math.trunc((i + j + 1) / 2);
+        await this.split(arr, i, k, j, options);
 
         await this.sort_left(arr, i, k, j, options);
         await this.mergesort(arr, i, k - 1, options);
@@ -66,6 +71,8 @@ class Mergesort extends SortAlgorithm {
         await this.mergesort(arr, k, j, options);
 
         await this.merge(arr, i, k, j, options);
+
+        await this.post_merge(arr, i, k, j, options);
     }
 
 
@@ -133,12 +140,39 @@ class MergesortViz extends Mergesort {
             .filter(d => d.index == arr.index(i))
             .transition()
             .duration(options.duration)
-            .attr('fill', 'darkgray')
+            .attr('fill', 'lightgray')
             .end();
     }
 
 
-    async sort_left(arr, i, k, j, options) {
+    async post_in_place(arr, i, options) {
+
+        let row_height = (PLOT_HEIGHT - this.ROW_PADDING) / 2;
+        let col_width = PLOT_WIDTH / arr.length;
+        let top_row_base = PLOT_HEIGHT - row_height - this.ROW_PADDING;
+        let bar_padding = 0.1 * col_width;
+      
+        let line = this.svg
+            .append('line')
+            .datum({i: i, j: i})
+            .attr('x1', d => col_width * d.i + bar_padding)
+            .attr('x2', d => col_width * (d.j + 1) - bar_padding)
+            .attr('y1', top_row_base + this.ROW_PADDING / 2)
+            .attr('y2', top_row_base + this.ROW_PADDING / 2)
+            .style('stroke', 'black')
+            .style('stroke-width', 4)
+            .style('opacity', 0)
+            .lower();
+        
+        return line
+            .transition()
+            .duration(options.duration)
+            .style('opacity', 1)
+            .end();
+    }
+
+
+    async split(arr, i, k, j, options) {
 
         let leftSize = (k - 1) - i + 1;
         let leftIndices = new Array(leftSize);
@@ -146,11 +180,43 @@ class MergesortViz extends Mergesort {
            leftIndices[n] = arr.index(n + i);
         }
 
-        return this.bars()
+        let rightSize = j - k + 1;
+        let rightIndices = new Array(rightSize);
+        for (let n = 0; n < rightSize; n++) {
+           rightIndices[n] = arr.index(n + k);
+        }
+
+        let trans = d3.transition().duration(options.duration)
+
+        let leftPromise = this.bars()
             .filter(d => leftIndices.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'lightcoral')
+            .end();
+
+        let rightPromise = this.bars()
+            .filter(d => rightIndices.includes(d.index))
+            .transition(trans)
+            .attr('fill', 'lightblue')
+            .end();
+
+        return Promise.all([leftPromise, rightPromise]);
+    }
+
+
+    async sort_left(arr, i, k, j, options) {
+
+        let rightSize = j - k + 1;
+        let rightIndices = new Array(rightSize);
+        for (let n = 0; n < rightSize; n++) {
+           rightIndices[n] = arr.index(n + k);
+        }
+
+        return this.bars()
+            .filter(d => rightIndices.includes(d.index))
             .transition()
             .duration(options.duration)
-            .attr('fill', 'lightcoral')
+            .attr('fill', 'lightgray')
             .end();
     }
 
@@ -190,13 +256,13 @@ class MergesortViz extends Mergesort {
         let leftPromise = this.bars()
             .filter(d => leftIndices.includes(d.index))
             .transition(trans)
-            .attr('fill', 'red')
+            .attr('fill', 'lightcoral')
             .end();
 
         let rightPromise = this.bars()
             .filter(d => rightIndices.includes(d.index))
             .transition(trans)
-            .attr('fill', 'blue')
+            .attr('fill', 'lightblue')
             .end();
 
         return Promise.all([leftPromise, rightPromise]);
@@ -237,13 +303,6 @@ class MergesortViz extends Mergesort {
 
 
     async post_copy_idx(arr, i, n, nextIdx, options) {
-
-        // return this.bars()
-        //     .filter(d => d.index == arr.index(nextIdx))
-        //     .transition()
-        //     .duration(options.duration)
-        //     .attr('fill', 'darkgray')
-        //     .end();
     }
 
 
@@ -263,6 +322,44 @@ class MergesortViz extends Mergesort {
             .attr('y', d => row_height - d.value)
             .attr('fill', 'lightgray')
             .end();
+    }
+
+
+    async post_merge(arr, i, k, j, options) {
+
+        let row_height = (PLOT_HEIGHT - this.ROW_PADDING) / 2;
+        let col_width = PLOT_WIDTH / arr.length;
+        let top_row_base = PLOT_HEIGHT - row_height - this.ROW_PADDING;
+        let bar_padding = 0.1 * col_width;
+      
+        let line = this.svg
+            .append('line')
+            .datum({i: i, j: j})
+            .attr('x1', d => col_width * d.i + bar_padding)
+            .attr('x2', d => col_width * (d.j + 1) - bar_padding)
+            .attr('y1', top_row_base + this.ROW_PADDING / 2)
+            .attr('y2', top_row_base + this.ROW_PADDING / 2)
+            .style('stroke', 'black')
+            .style('stroke-width', 4)
+            .style('opacity', 0)
+            .lower();
+ 
+        await line
+            .transition()
+            .duration(options.duration)
+            .style('opacity', 1)
+            .end();
+
+        // Clean up by removing the lines beneath this one...
+        this.svg.selectAll('line')
+            .filter(d => d.i === i && d.j === k - 1)
+            .remove();
+
+        this.svg.selectAll('line')
+            .filter(d => d.i === k && d.j === j)
+            .remove();
+        
+        return;
     }
 
 
