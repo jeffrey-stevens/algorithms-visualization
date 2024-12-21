@@ -9,10 +9,16 @@
 * Need to clarify the conceptual model of array indexing
 * Clean up functions in Mergesort
 
-
 ## Issues
 
 * Handle arrays of length 0 or 1
+* Mergesort:  Splitting of group bars is abrupt
+
+## Refactoring
+
+* The array should be a member of the *Viz classes
+  * Need to rethink the architecture of the program
+* Move all awaits statements inside the step visualization methods
 
 ## Improvements
 
@@ -25,3 +31,4 @@
 ## Algorithms
 
 * Radix sort
+* Tower of Hanoi
