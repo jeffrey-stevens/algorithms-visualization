@@ -12,4 +12,4 @@ Currently the following algorithms are implemented:
 
 A demo can be found here:
 
-[](https://jeffrey-stevens.github.io/algorithms-visualization/)
+<https://jeffrey-stevens.github.io/algorithms-visualization/>
