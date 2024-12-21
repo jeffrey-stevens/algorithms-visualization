@@ -10,7 +10,7 @@
 
 ## Issues
 
-* Handle arrays of length 0 or 1
+* Make sure arrays of length 0 or 1 are handled correctly
 
 ## Refactoring
 
@@ -23,8 +23,11 @@
 
 * In Mergesort, have underline bars show full split groupings
   * I.e. Show the inactive half in gray and the active half in black
+* Add grouping bars to Quicksort
 
 ## Features
+
+* Include descriptions of each step
 
 
 ## Algorithms
