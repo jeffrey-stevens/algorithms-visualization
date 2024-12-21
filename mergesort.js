@@ -198,14 +198,15 @@ class MergesortViz extends Mergesort {
     }
 
 
-    async break_group_bar(arr, i, k, j, color, options) {
+    async break_group_bar(arr, i, k, j, color, trans, options) {
+
+        if (trans === null) {
+            trans = d3.transition().duration(options.duration);
+        }
 
         let oldGroupBar = this.get_group_bar(i, j);
-
         let leftGroupBar = this.new_group_bar(arr, i, k - 1, color, options);
         let rightGroupBar = this.new_group_bar(arr, k, j, color, options);
-
-        let trans = d3.transition().duration(options.duration)
 
         let oldGroupBarPromise = oldGroupBar
             .transition(trans)
@@ -235,14 +236,15 @@ class MergesortViz extends Mergesort {
     }
 
 
-    async merge_group_bars(arr, i, k, j, color, options) {
+    async merge_group_bars(arr, i, k, j, color, trans, options) {
+
+        if (trans === null) {
+            trans = d3.transition().duration(options.duration);
+        }
 
         let leftGroupBar = this.get_group_bar(i, k - 1);
         let rightGroupBar = this.get_group_bar(k, j);
-
         let newGroupBar = this.new_group_bar(arr, i, j, color, options);
-
-        let trans = d3.transition().duration(options.duration);
 
         let leftGroupBarPromise = leftGroupBar
             .raise()
@@ -344,7 +346,7 @@ class MergesortViz extends Mergesort {
 
         let leftBarsPromise = this.color_bars(arr, i, k - 1, 'lightcoral', trans, options);
         let rightBarsPromise = this.color_bars(arr, k, j, 'lightblue', trans, options);
-        let groupBarsPromise = this.break_group_bar(arr, i, k, j, 'darygray', options);
+        let groupBarsPromise = this.break_group_bar(arr, i, k, j, 'darkgray', trans, options);
         
         return Promise.all([leftBarsPromise, rightBarsPromise, groupBarsPromise]);
     }
@@ -397,7 +399,7 @@ class MergesortViz extends Mergesort {
 
         let leftBarsPromise = this.color_bars(arr, i, k - 1, 'lightcoral', trans, options);
         let rightBarsPromise = this.color_bars(arr, k, j, 'lightblue', trans, options);
-        let groupBarPromise = this.merge_group_bars(arr, i, k, j, 'darkgray', options);
+        let groupBarPromise = this.merge_group_bars(arr, i, k, j, 'darkgray', trans, options);
 
         return Promise.all([leftBarsPromise, rightBarsPromise, groupBarPromise]);
     }
@@ -460,8 +462,9 @@ class MergesortViz extends Mergesort {
 
         let barsPromise = this.color_bars(arr, i, j, 'darkgray', null, options);
         let groupBarPromise = this.color_group_bar(i, j, 'black', options);
-        
-        return Promise.all([barsPromise, groupBarPromise]);
+        let chainedPromise = groupBarPromise.then(result => barsPromise);
+
+        return chainedPromise;
     }
 
 
